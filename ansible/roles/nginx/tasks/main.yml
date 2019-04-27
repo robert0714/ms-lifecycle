@@ -3,24 +3,24 @@
     dest: "{{ item }}"
     state: directory
     owner: vagrant
-  with_items: directories
+  with_items: "{{ directories }}"
   tags: [nginx]
 
 - name: Container is running
-  docker:
+  docker_container:
     image: nginx:alpine
     name: nginx
-    state: running
+    state: started
     ports: "{{ ports }}"
     volumes: "{{ volumes }}"
   when: not log_to_syslog is defined
   tags: [nginx]
 
 - name: Container is running
-  docker:
+  docker_container:
     image: nginx:alpine
     name: nginx
-    state: running
+    state: started
     ports: "{{ ports }}"
     volumes: "{{ volumes }}"
     log_driver: syslog
@@ -33,7 +33,7 @@
   copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-  with_items: files
+  with_items: "{{ files }}"
   register: result
   tags: [nginx]
 

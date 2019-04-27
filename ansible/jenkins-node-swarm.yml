@@ -1,6 +1,15 @@
+- hosts: jenkins-node-cd
+  remote_user: vagrant
+  serial: 1
+  roles:
+    - java
+    - jenkins-node
+
 - hosts: jenkins-node-swarm
   remote_user: vagrant
   serial: 1
+  vars:
+    - agent_user: ubuntu
   roles:
     - java
     - jenkins-node

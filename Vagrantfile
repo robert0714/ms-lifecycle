@@ -14,6 +14,7 @@ Vagrant.configure(2) do |config|
     d.vm.provision :shell, path: "scripts/bootstrap_ansible.sh"
     d.vm.provision :shell, inline: "PYTHONUNBUFFERED=1 ansible-playbook /vagrant/ansible/cd.yml -c local"
     d.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]            
       v.memory = 2048
     end
   end
@@ -22,6 +23,7 @@ Vagrant.configure(2) do |config|
     d.vm.hostname = "prod"
     d.vm.network "private_network", ip: "10.100.198.201"
     d.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]     
       v.memory = 1024
     end
   end
@@ -30,6 +32,7 @@ Vagrant.configure(2) do |config|
     d.vm.hostname = "logging"
     d.vm.network "private_network", ip: "10.100.198.202"
     d.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]     
       v.memory = 1536
     end
   end
@@ -39,6 +42,7 @@ Vagrant.configure(2) do |config|
       d.vm.hostname = "serv-disc-0#{i}"
       d.vm.network "private_network", ip: "10.100.194.20#{i}"
       d.vm.provider "virtualbox" do |v|
+        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]     
         v.memory = 1024
       end
     end
@@ -48,24 +52,30 @@ Vagrant.configure(2) do |config|
     d.vm.hostname = "proxy"
     d.vm.network "private_network", ip: "10.100.193.200"
     d.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.memory = 1024
     end
   end
   config.vm.define "swarm-master" do |d|
-    d.vm.box = "ubuntu/wily64"
+    d.vm.box = "ubuntu/xenial-cloud"
+    d.vm.box_url = "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-vagrant.box"
     d.vm.hostname = "swarm-master"
     d.vm.network "private_network", ip: "10.100.192.200"
+    d.vm.provision :shell, inline: "sudo apt-get install -y python"
     d.vm.provider "virtualbox" do |v|
       v.memory = 1024
     end
   end
   (1..2).each do |i|
     config.vm.define "swarm-node-#{i}" do |d|
-      d.vm.box = "ubuntu/wily64"
-      d.vm.hostname = "swarm-node-#{i}"
+      d.vm.box = "ubuntu/xenial-cloud"
+      d.vm.box_url = "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-vagrant.box"
       d.vm.network "private_network", ip: "10.100.192.20#{i}"
+      d.vm.hostname = "swarm-node-#{i}"
+      d.vm.provision :shell, inline: "sudo apt-get install -y python"
       d.vm.provider "virtualbox" do |v|
         v.memory = 1536
+        v.cpus = 1
       end
     end
   end
@@ -76,6 +86,7 @@ Vagrant.configure(2) do |config|
       d.vm.network "private_network", ip: "10.100.197.20#{i}"
       d.vm.provider "virtualbox" do |v|
         v.memory = 1536
+        v.cpus = 1
       end
     end
   end

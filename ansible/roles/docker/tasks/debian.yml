@@ -21,8 +21,7 @@
 
 - name: Debian docker-py is present
   pip:
-    name: docker-py
-    version: 1.6.0
+    name: docker
     state: present
   tags: [docker]
 
@@ -50,15 +49,4 @@
     name: docker
     state: restarted
   when: copy_result|changed or user_result|changed
-  tags: [docker]
-
-- name: DockerUI is running
-  docker:
-    image: uifd/ui-for-docker
-    name: dockerui
-    ports: 9000:9000
-    privileged: yes
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-  when: not skip_ui is defined
   tags: [docker]

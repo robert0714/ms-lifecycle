@@ -4,13 +4,13 @@
     mode: 0777
     recurse: yes
     state: directory
-  with_items: configs
+  with_items: "{{ configs }}"
   tags: [jenkins]
 
 - name: Container is running
-  docker:
+  docker_container:
     name: jenkins
-    image: "jenkins:{{ jenkins_version }}"
+    image: "vfarcic/jenkins"
     ports: 8080:8080
     volumes:
       - /data/jenkins:/var/jenkins_home
@@ -27,7 +27,7 @@
     src: "{{ item.src }}"
     dest: "{{ item.dir }}/{{ item.file }}"
     mode: "{{ item.mode }}"
-  with_items: configs
+  with_items: "{{ configs }}"
   register: configs_result
   tags: [jenkins]
 
@@ -38,29 +38,29 @@
     http://{{ ip }}:8080/pluginManager/installNecessaryPlugins"
   args:
     creates: /data/jenkins/plugins/{{ item }}
-  with_items: plugins
+  with_items: "{{ plugins }}"
   register: plugins_result
   tags: [jenkins]
 
 - wait_for:
     path: /data/jenkins/plugins/{{ item }}
-  with_items: plugins
+  with_items: "{{ plugins }}"
   tags: [jenkins]
 
 # Workaround to fix the bug in restarting containers from Ansible 2
 
 - name: Container is stopped
-  docker:
+  docker_container:
     name: jenkins
-    image: "jenkins:{{ jenkins_version }}"
+    image: "vfarcic/jenkins"
     state: stopped
   when: configs_result|changed or plugins_result|changed
   tags: [jenkins]
 
 - name: Container is running
-  docker:
+  docker_container:
     name: jenkins
-    image: "jenkins:{{ jenkins_version }}"
+    image: "vfarcic/jenkins"
     ports: 8080:8080
     volumes:
       - /data/jenkins:/var/jenkins_home
@@ -77,7 +77,7 @@
     path: "{{ home }}/jobs/{{ item.name }}"
     state: directory
     mode: 0777
-  with_items: jobs
+  with_items: "{{ jobs }}"
   tags: [jenkins]
 
 - name: Jobs are present
@@ -85,7 +85,7 @@
     src: "{{ item.src }}"
     dest: "{{ home }}/jobs/{{ item.name }}/config.xml"
     mode: 0777
-  with_items: jobs
+  with_items: "{{ jobs }}"
   register: jobs_result
   tags: [jenkins]
 
